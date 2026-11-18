@@ -64,7 +64,7 @@ docker compose version     # doit afficher "Docker Compose version v2…"
 On l'installe dans `/opt/doktortv-bot` (tu peux choisir un autre dossier, adapte alors les chemins du guide).
 
 ```bash
-sudo git clone https://github.com/<ton-compte>/DoktorTV-Bot.git /opt/doktortv-bot
+sudo git clone https://github.com/Lekarov/DoktorTV-Bot.git /opt/doktortv-bot
 cd /opt/doktortv-bot
 sudo cp .env.example .env
 sudo chmod 600 .env          # seul root peut lire les secrets

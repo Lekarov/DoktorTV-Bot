@@ -28,7 +28,7 @@ Jellyfin, Jellyseerr, Radarr, Sonarr, Transmission, cross-seed et Purgearr — d
 En bref :
 
 ```bash
-git clone https://github.com/<ton-compte>/DoktorTV-Bot.git /opt/doktortv-bot
+git clone https://github.com/Lekarov/DoktorTV-Bot.git /opt/doktortv-bot
 cd /opt/doktortv-bot
 cp .env.example .env && nano .env        # remplir jeton, chemins, clés
 docker compose up -d --build
