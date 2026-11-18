@@ -32,7 +32,7 @@ Chaque étape indique **quoi faire**, **pourquoi**, et **comment vérifier** que
 | Jellyfin | conseillé | Scan de bibliothèque |
 | Transmission | facultatif | Menu 🧲 |
 | cross-seed (v6) en conteneur | facultatif | Menu 🔁 |
-| Purgearr ≥ 1.1.0 | facultatif | Menu 🧹 |
+| Purgearr ≥ 1.2.0 | facultatif | Menu 🧹 |
 | `smartmontools` + `python3` sur l'hôte | facultatif | Menu 🩺 |
 
 Vérifie Docker :
@@ -265,9 +265,10 @@ Si `apiKey` n'est pas défini dans `config.js`, ajoute-le (une chaîne d'au moin
 Bon à savoir : cross-seed n'accepte une passe anticipée que si la prochaine passe planifiée est assez proche. Sinon le bot répond « ⏳ impossible maintenant » : ce n'est pas une panne.
 
 ### 🧹 Purgearr
-1. Installe [Purgearr](https://github.com/Lekarov/Purgearr) **1.1.0 ou plus** (il fournit les routes `/api/bot/*`).
+1. Installe [Purgearr](https://github.com/Lekarov/Purgearr) **1.2.0 ou plus** (il fournit les routes `/api/bot/*`).
 2. Dans `.env` : `PURGEARR_URL=http://192.168.1.10:7979`.
-3. Vérifie : `curl http://192.168.1.10:7979/api/bot/candidates?cat=lourds | head -c 300`.
+3. Vérifie : `curl http://192.168.1.10:7979/api/bot/ping` doit répondre `{"app":"purgearr","version":"1.2.0","bot_api":1}`.
+4. Dans le bot, ouvre 🧹 Ménage. Si Purgearr est absent, trop ancien ou à une mauvaise adresse, le bot l'explique en clair au lieu d'une erreur technique.
 
 Le bot ne supprime jamais rien lui-même. Il demande à Purgearr un **aperçu exact** (bibliothèque, torrents par tracker, hardlinks, liens cross-seed, copies), te le montre, puis demande ta confirmation.
 
@@ -330,7 +331,8 @@ Pense aussi à retirer les webhooks dans Radarr, Sonarr et Jellyseerr, et à ré
 | 🔁 « ⏳ Impossible maintenant » | Règle de cross-seed | Normal : passe déjà en cours ou trop récente |
 | 🩺 « Relevé indisponible » | Timer non installé | Étape 9 ; `systemctl status doktortv-health.service` |
 | 🩺 Disque « 💤 en veille » | Disque endormi | Normal : dernières valeurs connues affichées, il n'est pas réveillé exprès |
-| 🧹 « Purgearr HTTP 404 » | Purgearr trop ancien | Mets à jour Purgearr en 1.1.0 ou plus |
+| 🧹 « Ménage indisponible : trop ancien » | Purgearr < 1.2.0 | Mets Purgearr à jour (`git pull` puis redémarrage) |
+| 🧹 « Ménage indisponible : injoignable » | Purgearr arrêté ou mauvaise adresse | Vérifie `PURGEARR_URL` et `curl http://IP:7979/api/bot/ping` |
 
 Journaux utiles :
 

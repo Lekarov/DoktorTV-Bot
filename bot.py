@@ -166,7 +166,7 @@ async def on_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         try:
             await purge_search(update, ctx, update.message.text.strip())
         except Exception as ex:
-            await update.effective_chat.send_message(f"❌ Purgearr injoignable : {e(str(ex))[:200]}",
+            await update.effective_chat.send_message(f"🧹 {e(str(ex))[:300]}",
                                                      parse_mode="HTML", reply_markup=M([BACK]))
         return
     await do_search(update, update.message.text.strip())
@@ -330,6 +330,7 @@ async def media_request(update: Update, mtype: str, mid: int, seasons: list[int]
 # ---------------------------------------------------------------- ménage (Purgearr)
 # Le bot ne supprime rien lui-même : il passe par Purgearr (mêmes routes que
 # l'interface web), donc par sa recherche exacte des copies et des torrents.
+# Purgearr : https://github.com/Lekarov/Purgearr (≥ 1.2.0, routes /api/bot/*).
 PURGE_MENU = M([
     [B("🎬 Films déjà vus", callback_data="pl:vus:movie"), B("📺 Séries vues ou entamées", callback_data="pl:vus:series")],
     [B("💤 Jamais regardés", callback_data="pl:jamais:all"), B("🐘 Les plus lourds", callback_data="pl:lourds:all")],
@@ -340,7 +341,49 @@ CATS = {"vus": "déjà vus", "jamais": "jamais regardés (ajoutés il y a plus d
 KINDS = {"movie": "films", "series": "séries", "all": "films et séries"}
 
 
+PURGEARR_MIN = (1, 2, 0)
+PURGEARR_REPO = "https://github.com/Lekarov/Purgearr"
+_PURGEARR_OK = {"at": 0.0}
+
+
+class PurgearrError(RuntimeError):
+    pass
+
+
+async def purgearr_check():
+    """Vérifie (au plus toutes les 5 min) qu'on parle à un Purgearr compatible."""
+    if time.time() - _PURGEARR_OK["at"] < 300:
+        return
+    try:
+        async with SESSION.get(f"{PURGEARR}/api/bot/ping", timeout=aiohttp.ClientTimeout(total=10)) as r:
+            if r.status == 404:
+                # ancien Purgearr (sans /api/bot/ping) ou autre service ? /api/status tranche
+                async with SESSION.get(f"{PURGEARR}/api/status", timeout=aiohttp.ClientTimeout(total=10)) as r2:
+                    st = await r2.json(content_type=None) if r2.status == 200 else None
+                if isinstance(st, dict) and "radarr" in st and "transmission" in st:
+                    raise PurgearrError(f"Purgearr répond mais il est trop ancien : mets-le à jour en "
+                                        f"{'.'.join(map(str, PURGEARR_MIN))} ou plus ({PURGEARR_REPO}).")
+                raise PurgearrError(f"{PURGEARR} n'est pas Purgearr : vérifie PURGEARR_URL.")
+            info = await r.json(content_type=None)
+    except aiohttp.ClientError as ex:
+        raise PurgearrError(f"Purgearr injoignable à {PURGEARR} ({type(ex).__name__}). "
+                            "Vérifie qu'il tourne et la variable PURGEARR_URL du .env.") from ex
+    except ValueError as ex:
+        raise PurgearrError(f"{PURGEARR} ne répond pas comme Purgearr : vérifie PURGEARR_URL.") from ex
+    if not isinstance(info, dict) or info.get("app") != "purgearr":
+        raise PurgearrError(f"{PURGEARR} n'est pas Purgearr : vérifie PURGEARR_URL.")
+    try:
+        ver = tuple(int(x) for x in str(info.get("version", "0")).split("-")[0].split(".")[:3])
+    except ValueError:
+        ver = (0,)
+    if ver < PURGEARR_MIN:
+        raise PurgearrError(f"Purgearr {info.get('version')} est trop ancien : "
+                            f"{'.'.join(map(str, PURGEARR_MIN))} ou plus requis ({PURGEARR_REPO}).")
+    _PURGEARR_OK["at"] = time.time()
+
+
 async def purgearr(method: str, path: str, form: dict | None = None, raw: bool = False, timeout: int = 60):
+    await purgearr_check()
     async with SESSION.request(method, f"{PURGEARR}{path}", data=form,
                                timeout=aiohttp.ClientTimeout(total=timeout), allow_redirects=False) as r:
         if r.status >= 400:
@@ -601,6 +644,11 @@ async def on_purge_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE, data: 
     st = ctx.user_data.get("purge")
     if data == "pm":
         ctx.user_data.pop("await", None)
+        try:
+            await purgearr_check()
+        except PurgearrError as ex:
+            await show(update, f"🧹 <b>Ménage indisponible</b>\n\n{e(str(ex))}", M([BACK]))
+            return
         await show(update, "🧹 <b>Ménage</b> — que veux-tu passer en revue ?\n"
                            "Les favoris et les titres protégés ne sont jamais proposés.", PURGE_MENU)
     elif data.startswith("pl:"):

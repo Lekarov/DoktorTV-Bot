@@ -14,7 +14,7 @@ Jellyfin, Jellyseerr, Radarr, Sonarr, Transmission, cross-seed et Purgearr — d
 | 🆕 **Derniers ajouts** · 📅 **À venir** | Imports récents, calendrier des épisodes et des sorties de films. |
 | 🖥️ **Serveur** · 🐳 **Conteneurs** | Charge, RAM, température, espace disque ; état et redémarrage des conteneurs Docker. |
 | 🔄 **Scanner Jellyfin** | Relance l'analyse de la bibliothèque. |
-| 🧹 **Ménage** *(Purgearr)* | Suggestions de suppression une par une (films vus, séries vues ou entamées, jamais regardés, les plus lourds), fiche détaillée, **aperçu exact** de ce qui sera supprimé (bibliothèque, torrents, hardlinks, liens cross-seed, copies), confirmation, protection d'un titre. |
+| 🧹 **Ménage** *([Purgearr](https://github.com/Lekarov/Purgearr))* | Suggestions de suppression une par une (films vus, séries vues ou entamées, jamais regardés, les plus lourds), fiche détaillée, **aperçu exact** de ce qui sera supprimé (bibliothèque, torrents, hardlinks, liens cross-seed, copies), confirmation, protection d'un titre. |
 | 🔁 **Cross-seed** | Lancer une recherche ou un scan RSS tout de suite, tout re-chercher, suivre l'avancement ; message à la fin de la recherche. |
 | 🧲 **Transmission** | Vitesses, ratio global, top seeds, actifs, inactifs, torrents à problème (passkey, retirés du tracker, données abîmées) avec revérifier / relancer / retirer, mode tortue, pause générale. |
 | 🩺 **Santé du serveur** | SMART de chaque disque, températures, usure SSD, services en échec, test SMART hebdomadaire. |
@@ -52,4 +52,4 @@ Détails : [docs/INSTALLATION.md#sécurité](docs/INSTALLATION.md#12-sécurité)
 - Un serveur Linux avec **Docker** et **Docker Compose v2**.
 - Les services que tu veux piloter (au minimum Radarr, Sonarr et Jellyseerr ; les autres sont facultatifs).
 - Pour 🩺 : `smartmontools` et `python3` sur l'hôte.
-- Pour 🧹 : [Purgearr](https://github.com/Lekarov/Purgearr) ≥ 1.1.0 (routes `/api/bot/*`).
+- Pour 🧹 : [Purgearr](https://github.com/Lekarov/Purgearr) ≥ 1.2.0 (routes `/api/bot/*`).
