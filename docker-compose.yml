@@ -1,0 +1,18 @@
+# DoktorTV Bot — tous les chemins et réglages viennent du fichier .env (voir .env.example)
+services:
+  doktortv-bot:
+    build: .
+    container_name: doktortv-bot
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/data                                   # propriétaire, état, relevé de santé
+      - /var/run/docker.sock:/var/run/docker.sock      # état/redémarrage des conteneurs, journaux cross-seed
+      - ${RADARR_CONFIG_DIR:?à définir dans .env}:/keys/radarr:ro
+      - ${SONARR_CONFIG_DIR:?à définir dans .env}:/keys/sonarr:ro
+      - ${SEERR_CONFIG_DIR:?à définir dans .env}:/keys/seerr:ro
+      - ${CROSSSEED_CONFIG_DIR:-./empty}:/keys/cross-seed:ro
+      - ${STORAGE_PATH:?à définir dans .env}:/pool:ro
+    ports:
+      # webhooks Radarr/Sonarr/Seerr — à n'exposer QUE sur le réseau local
+      - "${BIND_IP:-127.0.0.1}:${HOOK_PORT:-8099}:${HOOK_PORT:-8099}"

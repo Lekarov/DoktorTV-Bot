@@ -1,0 +1,15 @@
+# Secrets et données — ne jamais publier
+.env
+.env.*
+!.env.example
+data/
+*.avant-*
+*.bak
+*.log
+
+# Python / systèmes
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.DS_Store
